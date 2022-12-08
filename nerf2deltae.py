@@ -73,10 +73,11 @@ def main():
     else:
         raise RuntimeError("Invalid dataset_type: \"%s\"" % args.dataset_type)
     
-    testset_images = os.listdir(args.testset)
+    testset_images = list(filter(lambda file: file.endswith(".png"), os.listdir(args.testset)))
+    testset_images.sort()
 
     if len(testset_images) != len(dataset_images):
-        raise RuntimeError("The number of images in %s isn't equal to the test image list!(%s vs %s)" % (args.testset, len(testset_images), len(dataset_images)))
+        raise RuntimeError("The number of images in %s isn't equal to the test image list! Did you use an incorrect --testskip value?(%s vs %s)" % (args.testset, len(testset_images), len(dataset_images)))
 
     if args.mask_dir is not None and len(mask_images) != len(dataset_images):
         raise RuntimeError("The number of mask images is not the same as the number of images(%s vs %s)" % (len(mask_images), len(dataset_images)))
@@ -92,7 +93,7 @@ def main():
     for pair in pairs:
         deltae = compare_pair(pair)
         delta_e_values.append(deltae)
-        print("Delta-E for %s: %f" % (pair.nerf, deltae))
+        print("Delta-E for %s(%s): %f" % (pair.nerf, pair.base_truth, deltae))
 
     delta_e_values = np.array(delta_e_values)
 
